@@ -3,11 +3,28 @@
     <head>
         <meta charset="utf-8">
         <title>HexShell</title>
-        <link rel="shortcut icon" href="https://github.com/Falcn8/storage/blob/main/HexShell/HexShell.jpg?raw=true"/>
+        <link rel="shortcut icon" href="https://github.com/Falcn8/HexShell/blob/master/HexShell.jpg?raw=true"/>
         <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+        <style>
+            @font-face {
+                font-family: Aquire;
+                src: url("https://raw.githubusercontent.com/Falcn8/hexshell/master/Aquire-BW0ox.otf") format("opentype");
+            }
+            @font-face {
+                font-family: Inder;
+                src: url("https://raw.githubusercontent.com/Falcn8/hexshell/master/Inder-Regular.ttf");
+            }
+            h1, h3 {
+                font-family: Aquire !important;
+            }
+            body {
+                font-family: Inder;
+            }
+        </style>
     </head>
     <body class="bg-gray-100">
-        <h1 class="text-3xl font-medium text-center mx-auto my-10"> HexShell </h1>
+        <h1 class="text-3xl font-medium text-center mx-auto mt-10">HexShell</h1>
+        <h3 class="text-lg font-normal text-center mx-auto">{{PLATFORM}}</h3>
         <form class="bg-white p-6 rounded-lg shadow-md mx-auto my-10 max-w-lg" method="POST" action="">
         <label class="block text-gray-700 font-medium mb-2" for="cmd">Command:</label>
         <input class="block w-full border border-gray-400 p-2 rounded-lg" type="text" id="cmd" name="cmd">

