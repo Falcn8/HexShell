@@ -38,7 +38,6 @@ class Webshell(BaseHTTPRequestHandler):
             httpd.server_close()
             print("\nClose requested\nExiting...")
             exit()
-        print(self.__dict__)
         self._send_response(INDEX.replace("{{PLATFORM}}", str(platform.platform())))
 
     def do_POST(self):
